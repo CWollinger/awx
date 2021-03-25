@@ -18,26 +18,26 @@ Edit the credentials for AWX and the Postgres database:
 ## Start docker containers
 First create the services and volumes:
 ````shell
-docker-compose create 
+docker-compose up --no-start 
 ````
 
 Change redis socket permissions:
 ````shell
-sudo chmod 777 /var/lib/docker/volumes/repo_redis-socket/_data/
+sudo chmod 777 /var/lib/docker/volumes/awx_redis-socket/_data/
 ````
 
 Copy your nginx config file. Make here changes if you want to redirect SSL/https:
 ````shell
-sudo cp nginx/default.conf /var/lib/docker/volumes/repo_nginx_config/_data/conf.d/default.conf 
+sudo cp nginx/default.conf /var/lib/docker/volumes/awx_nginx_config/_data/conf.d/default.conf 
 ````
 
 Copy the AWX config files into the volumes:
 ````shell
-sudo mkdir /var/lib/docker/volumes/repo_awx-config/_data/conf.d
-sudo cp awx-web/SECRET_KEY /var/lib/docker/volumes/repo_awx-config/_data/
-sudo cp awx-web/environment.sh /var/lib/docker/volumes/repo_awx-config/_data/conf.d/
-sudo cp awx-web/credentials.py /var/lib/docker/volumes/repo_awx-config/_data/conf.d/
-sudo cp awx-web/nginx.conf /var/lib/docker/volumes/repo_awx-nginx/_data/
+sudo mkdir /var/lib/docker/volumes/awx_awx-config/_data/conf.d
+sudo cp awx-web/SECRET_KEY /var/lib/docker/volumes/awx_awx-config/_data/
+sudo cp awx-web/environment.sh /var/lib/docker/volumes/awx_awx-config/_data/conf.d/
+sudo cp awx-web/credentials.py /var/lib/docker/volumes/awx_awx-config/_data/conf.d/
+sudo cp awx-web/nginx.conf /var/lib/docker/volumes/awx_awx-nginx/_data/
 ````
 
 Start AWX:
