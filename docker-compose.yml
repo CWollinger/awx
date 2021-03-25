@@ -6,9 +6,6 @@ services:
     container_name: awx_web
     depends_on:
       - redis
-    #   - postgres
-    # ports:
-    #   - "80:8052"
     hostname: awxweb
     user: root
     restart: unless-stopped
@@ -44,7 +41,6 @@ services:
       https_proxy: 
       no_proxy: 
       SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
-      ANSIBLE_HOST_KEY_CHECKING: 'false'
 
   redis:
     image: redis:5.0.9
