@@ -1,0 +1,96 @@
+version: '3'
+services:
+
+  web:
+    image: ansible/awx:15.0.1
+    container_name: awx_web
+    depends_on:
+      - redis
+    #   - postgres
+    # ports:
+    #   - "80:8052"
+    hostname: awxweb
+    user: root
+    restart: unless-stopped
+    volumes:
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - awx-config:/etc/tower/
+      - awx-nginx:/etc/nginx/
+      - redis-socket:/var/run/redis/
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+
+  task:
+    image: ansible/awx:15.0.1
+    container_name: awx_task
+    depends_on:
+      - redis
+      - web
+      - postgres
+    command: /usr/bin/launch_awx_task.sh
+    hostname: awx
+    user: root
+    restart: unless-stopped
+    volumes:
+      - supervisor-socket:/var/run/supervisor
+      - rsyslog-socket:/var/run/awx-rsyslog/
+      - awx-config:/etc/tower/
+      - redis-socket:/var/run/redis/
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+      SUPERVISOR_WEB_CONFIG_PATH: '/etc/supervisord.conf'
+      ANSIBLE_HOST_KEY_CHECKING: 'false'
+
+  redis:
+    image: redis:5.0.9
+    container_name: awx_redis
+    restart: unless-stopped
+    environment:
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+    command: ["/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - redis-socket:/var/run/redis/
+
+  postgres:
+    image: postgres:12
+    container_name: awx_postgres
+    restart: unless-stopped
+    volumes:
+      - postgres_new-data:/var/lib/postgresql/data/pgdata/
+    environment:
+      POSTGRES_USER: awx
+      POSTGRES_PASSWORD: awxpass
+      POSTGRES_DB: awx
+      PGDATA: /var/lib/postgresql/data/pgdata
+      http_proxy: 
+      https_proxy: 
+      no_proxy: 
+
+  nginx:
+    image: nginx
+    container_name: awx_nginx
+    restart: unless-stopped
+    depends_on: 
+      - redis
+      - postgres
+    volumes:
+      - nginx_config:/etc/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  nginx_config:
+  supervisor-socket:
+  rsyslog-socket:
+  redis-socket:
+  awx-config:
+  awx-nginx:
+  postgres_new-data:
